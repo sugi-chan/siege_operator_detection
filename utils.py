@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import tensorflow as tf
 import copy
 import cv2
+import face_recognition
 
 class BoundBox:
     def __init__(self, x, y, w, h, c = None, classes = None):
@@ -82,16 +83,39 @@ def interval_overlap(interval_a, interval_b):
         else:
             return min(x2,x4) - x3  
 
-# can make a function to check the boxes... see if there is a hold on them... 
-'''
-try and put a timer on the orb of deception and charm ones... like 4 seconds and at 60 fps 4*60 hold...
-could do a a 4*60 second hold too?? more than enough and
+def gen_operator_database():
+    #hibana_face = face_recognition.load_image_file("hibana_small.PNG")
+    #ash_face = face_recognition.load_image_file("ash_small.PNG")
+    #twitch_face = face_recognition.load_image_file("twitch_small.PNG")
+    #capitao_face = face_recognition.load_image_file("capitao.PNG")
+    #thermite_face = face_recognition.load_image_file("thermite.png")
+    hibana_face = face_recognition.load_image_file("hibana_small.PNG")
+    hibana_face_encoding = face_recognition.face_encodings(hibana_face,num_jitters=100)[0]
 
-'''
-def draw_boxes(image, boxes, labels):
-   
+    thermite_face = face_recognition.load_image_file("valk.PNG")
+    thermite_face_encoding = face_recognition.face_encodings(thermite_face,num_jitters=100)[0]
+
+    #hibana_face_encoding = face_recognition.face_encodings(hibana_face,num_jitters=100)[0]
+    #ash_face_encoding = face_recognition.face_encodings(ash_face,num_jitters=100)[0]
+    #twitch_face_encoding = face_recognition.face_encodings(twitch_face,num_jitters=1000)[0]
+    #capitao_face_encoding = face_recognition.face_encodings(capitao_face,num_jitters=100)[0]
+    #thermite_face_encoding = face_recognition.face_encodings(thermite_face,num_jitters=100)[0]
+    #print('twitch',twitch_face_encoding)
+
+            # Create arrays of known face encodings and their names
+    known_face_encodings = [
+                thermite_face_encoding#hibana_face_encoding,ash_face_encoding,twitch_face_encoding
+            ]
+    known_face_names = [
+                'Valkyrie'#"Hibana","Ash","Twitch"
+            ]
+    return known_face_encodings,known_face_names
+
+def draw_boxes(image, boxes, labels):#,index_i):
+    known_face_encodings_,known_face_names_= gen_operator_database()
     for box in boxes:
-        if box.get_score() < .50:
+        #can try and filter here
+        if box.get_score() < .05:
 
             continue
 
@@ -100,72 +124,74 @@ def draw_boxes(image, boxes, labels):
             xmax  = int((box.x + box.w/2) * image.shape[1])
             ymin  = int((box.y - box.h/2) * image.shape[0])
             ymax  = int((box.y + box.h/2) * image.shape[0])
+            #print(box.get_score())
 
-            if labels[box.get_label()] == 'charm':
-                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0,0,255), 3)
-                cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
-                        (xmin, ymin - 13), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        1e-3 * image.shape[0], 
-                        (0,0,255), 2)
-            if labels[box.get_label()] == 'orb of deception':
-                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255,0,0), 3)
-                cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
-                        (xmin, ymin - 13), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        1e-3 * image.shape[0], 
-                        (255,0,0), 2)
-            if labels[box.get_label()] == 'ahri':
-                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0,255,0), 3)
-                cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
-                        (xmin, ymin - 13), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        1e-3 * image.shape[0], 
-                        (0,255,0), 2)
-            '''
-            cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
-                        (xmin, ymin - 13), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        1e-3 * image.shape[0], 
-                        (0,255,0), 2)
-            '''
-    return image        
+            #make this into a function to clean up code 
+            cropped_box = image[ymin:ymax,xmin:xmax]
+            #hibana_face = face_recognition.load_image_file("108101.png")
 
-def charm_draw_boxes(image, boxes, labels):
-   
-    for box in boxes:
-        if box.get_score() < .50:
+            #hibana_face_encoding = face_recognition.face_encodings(hibana_face,num_jitters=100)[0]
+            #print(hibana_face_encoding)
 
-            continue
 
-        else:
-            xmin  = int((box.x - box.w/2) * image.shape[1])
-            xmax  = int((box.x + box.w/2) * image.shape[1])
-            ymin  = int((box.y - box.h/2) * image.shape[0])
-            ymax  = int((box.y + box.h/2) * image.shape[0])
+            # Create arrays of known face encodings and their names
+            #known_face_encodings = [
+            #    hibana_face_encoding
+            #]
+            #known_face_names = [
+            #    "Hibana"
+            #]
 
-            if labels[box.get_label()] == 'charm':
-                cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0,0,255), 3)
-                cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
-                        (xmin, ymin - 13), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 
-                        1e-3 * image.shape[0], 
-                        (0,0,255), 2)
+            try:
+                unknown_test = face_recognition.face_encodings(cropped_box,num_jitters=1000)[0]
+                matches = face_recognition.compare_faces(known_face_encodings_, unknown_test)
+
+                print('unknown',unknown_test)
+        # the code that can cause the error
+            except IndexError: # catch the erro
+                matches =  [False] 
+                pass # pass will basically ignore it
+       
             
+
+
+            print(matches)
+            if True in matches:
+                            first_match_index = matches.index(True)
+                            name = known_face_names_[first_match_index]
+                            print(name)
+                            cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0,255,0), 3)
+                            rounded_score = round(box.get_score(),3) 
+                            cv2.putText(image, 
+                                        name, 
+                                        (xmin, ymin - 13), 
+                                        cv2.FONT_HERSHEY_SIMPLEX, 
+                                        1e-3 * image.shape[0], 
+                                        (0,255,0), 2)
+            
+
+            #cv2.imwrite("E:/siege/3_5 cropped images/{}.png".format(index_i), cropped_box)
+            '''
+            cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (255,0,0), 3)
+            
+            #index_i+=1 
+            rounded_score = round(box.get_score(),3) 
+            cv2.putText(image, 
+                        labels[box.get_label()] + ' ' + str(rounded_score), 
+                        (xmin, ymin - 13), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 
+                        1e-3 * image.shape[0], 
+                        (0,255,0), 2)
+            '''        
             '''
             cv2.putText(image, 
-                        labels[box.get_label()] + ' ' + str(box.get_score()), 
+                        labels[box.get_label()] + ' ' + str(rounded_score), 
                         (xmin, ymin - 13), 
                         cv2.FONT_HERSHEY_SIMPLEX, 
                         1e-3 * image.shape[0], 
                         (0,255,0), 2)
             '''
-    return image       
+    return image# , index_i       
         
 def decode_netout(netout, obj_threshold, nms_threshold, anchors, nb_class):
     grid_h, grid_w, nb_box = netout.shape[:3]

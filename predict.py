@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 from preprocessing import parse_annotation
-from utils import draw_boxes, charm_draw_boxes
+from utils import draw_boxes
 from frontend import YOLO
 import json
 
@@ -50,25 +50,20 @@ def _main_(args):
                 max_box_per_image   = config['model']['max_box_per_image'],
                 anchors             = config['model']['anchors'])
 
-    yolo2 = YOLO(architecture        = config['model']['architecture'],
-                input_size          = config['model']['input_size'], 
-                labels              = config['model']['labels'], 
-                max_box_per_image   = config['model']['max_box_per_image'],
-                anchors             = config['model']['anchors'])
     ###############################
     #   Load trained weights
     ###############################    
 
     print(weights_path)
-    yolo.load_weights(weights_path) #feed in the main one, charm on can load on its own
-    yolo2.load_weights('charm_detector_3_12.h5')
+    yolo.load_weights(weights_path)
+
     ###############################
     #   Predict bounding boxes 
     ###############################
 
     if image_path[-4:] == '.mp4':
         video_out = image_path[:-4] + '_detected' + image_path[-4:]
-
+        #i= 0 
         video_reader = cv2.VideoCapture(image_path)
 
         nb_frames = int(video_reader.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -81,29 +76,21 @@ def _main_(args):
                                (frame_w, frame_h))
 
         for i in tqdm(range(nb_frames)):
-            #can just make function that checks labels. 
-            # and respits out the boxes? frames are at 60fps xD 
-            # i+240 can be how long it delays those things for
             _, image = video_reader.read()
             
             boxes = yolo.predict(image)
-            boxes2 = yolo2.predict(image)
-            #dont really have to draw the orb boxes... but can tally at the side or something
-
-            image = draw_boxes(image, boxes, config['model']['labels'])
-            image = charm_draw_boxes(image, boxes2, config['model']['labels'])
+            image= draw_boxes(image, boxes, config['model']['labels'])#,i)
 
             video_writer.write(np.uint8(image))
 
         video_reader.release()
         video_writer.release()  
     else:
+        #i= 0
         image = cv2.imread(image_path)
         boxes = yolo.predict(image)
-        boxes2 = yolo2.predict(image)
 
-        image = draw_boxes(image, boxes, config['model']['labels'])
-        image = charm_draw_boxes(image, boxes2, config['model']['labels'])
+        image= draw_boxes(image, boxes, config['model']['labels'])#,i)
 
         print(len(boxes), 'boxes are found')
 
