@@ -19,5 +19,5 @@ the only real difference is I have modified the utils.py file for prediction of 
 
 ~~the related datasets are around 3gb, so message me if you want a copy, but overall not hard to create~~
 
-link to dataset [here](https://drive.google.com/open?id=18ctkrR13XgiCMEgtIgRpQ8xuXIWTlWff). These are the annotations and xmls which are suitable for this Keras implementation or standard tensorflow detection pipelines
+link to dataset [here](https://drive.google.com/open?id=16BoenC_F4PFCd6BCxk7H6jxjFXBbSAoi). These are the annotations and xmls which are suitable for this Keras implementation or standard tensorflow detection pipelines. Annotations I believe are called `person` still.
 
