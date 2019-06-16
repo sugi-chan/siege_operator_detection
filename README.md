@@ -17,5 +17,7 @@ As of now the this repository is more or less a clone of https://github.com/expe
 
 the only real difference is I have modified the utils.py file for prediction of operators faces using the face_recognition python library. 
 
-the related datasets are around 3gb, so message me if you want a copy, but overall not hard to create 
+~~the related datasets are around 3gb, so message me if you want a copy, but overall not hard to create~~
+
+link to dataset [here](https://drive.google.com/open?id=18ctkrR13XgiCMEgtIgRpQ8xuXIWTlWff). These are the annotations and xmls which are suitable for this Keras implementation or standard tensorflow detection pipelines
 
